@@ -4,28 +4,30 @@ import cors from "cors";
 import dotenv from "dotenv";
 import router from "./Routes/routes.js";
 
+dotenv.config();
+console.log("MONGO URI:", process.env.MONGODB_URI); // debug
+
 const app = express();
 app.use(cors());
 app.use(express.json());
-dotenv.config();
 
-mongoose.connect('mongodb://localhost:27017/SkillFinder', 
-   { useNewUrlParser: true,
+mongoose.set('strictQuery', true);
+mongoose.set('serverSelectionTimeoutMS', 5000); // 5 sec timeout
+
+mongoose.connect(process.env.MONGODB_URI, { 
+    useNewUrlParser: true,
     useUnifiedTopology: true
-   }
-).then(() => {
-        console.log("Connected to DB");
-    })
-    .catch(() => {
-        console.log("Failed to connect to DB");
-    });
+})
+.then(() => console.log("✅ Connected to MongoDB Atlas"))
+.catch((err) => console.error("❌ Failed to connect to DB:", err.message));
 
 app.use('/api', router);
 
-app.listen(5000, () => {
-    console.log("Server is running on port 5000");
+app.get('/', (req, res) => {
+    res.send("Project is running ✅");
 });
 
-app.get('/', (req, res) => {
-    res.send("Project is running");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server is running on port ${PORT}`);
 });
